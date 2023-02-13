@@ -305,3 +305,84 @@ func coreToNetworkingLBStatus(lbs v1.LoadBalancerStatus) networking_v1.IngressLo
 		Ingress: ingress,
 	}
 }
+
+func lbStatusToGatewayAddresses(lbs v1.LoadBalancerStatus) []gatewayapi_v1.GatewayStatusAddress {
+	addrs := []gatewayapi_v1.GatewayStatusAddress{}
+
+	for _, lbi := range lbs.Ingress {
+		if len(lbi.IP) > 0 {
+			addrs = append(addrs, gatewayapi_v1.GatewayStatusAddress{
+				Type:  ref.To(gatewayapi_v1beta1.IPAddressType),
+				Value: lbi.IP,
+			})
+		}
+		if len(lbi.Hostname) > 0 {
+			addrs = append(addrs, gatewayapi_v1.GatewayStatusAddress{
+				Type:  ref.To(gatewayapi_v1beta1.HostnameAddressType),
+				Value: lbi.Hostname,
+			})
+		}
+	}
+
+	return addrs
+}
+
+// IngressStatusLoadBalancerWatcher implements ResourceEventHandler and
+// watches for changes to the status.loadbalancer field
+// Note that we specifically *don't* inspect inside the struct, as sending empty values
+// is desirable to clear the status.
+type IngressStatusLoadBalancerWatcher struct {
+	IngressName string
+	LBStatus    chan networking_v1.IngressLoadBalancerStatus
+	Log         logrus.FieldLogger
+}
+
+func (s *IngressStatusLoadBalancerWatcher) OnAdd(obj interface{}) {
+	ingress, ok := obj.(*networking_v1.Ingress)
+	if !ok {
+		// not a service
+		return
+	}
+	if ingress.Name != s.IngressName {
+		return
+	}
+	s.Log.WithField("name", ingress.Name).
+		WithField("namespace", ingress.Namespace).
+		Debug("received new service address")
+
+	s.notify(ingress.Status.LoadBalancer)
+}
+
+func (s *IngressStatusLoadBalancerWatcher) OnUpdate(oldObj, newObj interface{}) {
+	ingress, ok := newObj.(*networking_v1.Ingress)
+	if !ok {
+		// not a service
+		return
+	}
+	if ingress.Name != s.IngressName {
+		return
+	}
+	s.Log.WithField("name", ingress.Name).
+		WithField("namespace", ingress.Namespace).
+		Debug("received new service address")
+
+	s.notify(ingress.Status.LoadBalancer)
+}
+
+func (s *IngressStatusLoadBalancerWatcher) OnDelete(obj interface{}) {
+	ingress, ok := obj.(*networking_v1.Ingress)
+	if !ok {
+		// not a service
+		return
+	}
+	if ingress.Name != s.IngressName {
+		return
+	}
+	s.notify(networking_v1.IngressLoadBalancerStatus{
+		Ingress: nil,
+	})
+}
+
+func (s *IngressStatusLoadBalancerWatcher) notify(lbstatus networking_v1.IngressLoadBalancerStatus) {
+	s.LBStatus <- lbstatus
+}
