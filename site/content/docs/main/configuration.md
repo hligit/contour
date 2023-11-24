@@ -55,6 +55,7 @@ Many of these flags are mirrored in the [Contour Configuration File](#configurat
 | `--leader-election-retry-period`                         | The interval which Contour will attempt to acquire leadership lease.   |
 | `--leader-election-resource-name`                        | The name of the resource (Lease) leader election will lease.           |
 | `--leader-election-resource-namespace`                   | The namespace of the resource (Lease) leader election will lease.      |
+| `--load-balancer-status=<kind:namespace/name\|addresses>       | Address to set (kind=hostname) or the source to inspect for ingress status (kind=service or ingress). |
 | `-d, --debug`                                            | Enable debug logging                                                   |
 | `--kubernetes-debug=<log level>`                         | Enable Kubernetes client debug logging                                 |
 | `--log-format=<text\|json>`                              | Log output format for Contour. Either text (default) or json.          |

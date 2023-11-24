@@ -15,6 +15,7 @@ package controller
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/go-logr/logr"
@@ -402,6 +403,7 @@ func TestGatewayReconcile(t *testing.T) {
 							Namespace: gw.Namespace,
 							Name:      "envoy-" + gw.Name,
 						},
+						LoadBalancer: fmt.Sprintf("service:%s/envoy-%s", gw.Namespace, gw.Name),
 					},
 				}
 
@@ -472,6 +474,7 @@ func TestGatewayReconcile(t *testing.T) {
 							Namespace: gw.Namespace,
 							Name:      "envoy-" + gw.Name,
 						},
+						LoadBalancer: fmt.Sprintf("service:%s/envoy-%s", gw.Namespace, gw.Name),
 					},
 				}
 
@@ -535,6 +538,7 @@ func TestGatewayReconcile(t *testing.T) {
 							Namespace: gw.Namespace,
 							Name:      "envoy-" + gw.Name,
 						},
+						LoadBalancer: fmt.Sprintf("service:%s/envoy-%s", gw.Namespace, gw.Name),
 					},
 				}
 
