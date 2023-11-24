@@ -15,6 +15,7 @@ package contourconfig
 
 import (
 	"context"
+	"fmt"
 
 	contour_api_v1alpha1 "github.com/projectcontour/contour/apis/projectcontour/v1alpha1"
 	"github.com/projectcontour/contour/internal/provisioner/model"
@@ -72,10 +73,7 @@ func setGatewayConfig(config *contour_api_v1alpha1.ContourConfiguration, contour
 		Namespace: contour.Namespace,
 		Name:      contour.EnvoyServiceName(),
 	}
-	config.Spec.Envoy.Ingress = &contour_api_v1alpha1.NamespacedName{
-		Namespace: contour.Namespace,
-		Name:      contour.EnvoyIngressName(),
-	}
+	config.Spec.Envoy.LoadBalancer = fmt.Sprintf("service:%s/%s", contour.Namespace, contour.EnvoyServiceName())
 }
 
 // EnsureContourConfigDeleted deletes a ContourConfig for the provided contour, if the configured owner labels exist.

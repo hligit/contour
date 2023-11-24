@@ -15,6 +15,7 @@ package controller
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	contourv1alpha1 "github.com/projectcontour/contour/apis/projectcontour/v1alpha1"
@@ -347,6 +348,7 @@ func TestGatewayReconcile(t *testing.T) {
 							Namespace: gw.Namespace,
 							Name:      "envoy-" + gw.Name,
 						},
+						LoadBalancer: fmt.Sprintf("service:%s/envoy-%s", gw.Namespace, gw.Name),
 						Metrics: &contourv1alpha1.MetricsConfig{
 							Port: 8003,
 						},
@@ -412,6 +414,7 @@ func TestGatewayReconcile(t *testing.T) {
 							Namespace: gw.Namespace,
 							Name:      "envoy-" + gw.Name,
 						},
+						LoadBalancer: fmt.Sprintf("service:%s/envoy-%s", gw.Namespace, gw.Name),
 					},
 				}
 
@@ -467,6 +470,7 @@ func TestGatewayReconcile(t *testing.T) {
 							Namespace: gw.Namespace,
 							Name:      "envoy-" + gw.Name,
 						},
+						LoadBalancer: fmt.Sprintf("service:%s/envoy-%s", gw.Namespace, gw.Name),
 					},
 				}
 
